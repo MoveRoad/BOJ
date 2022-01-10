@@ -54,9 +54,9 @@ class Heap{
                 let currentNode = parent;
 
                 // Left
-                if (this.node[leftchild] && this.node[leftchild] > this.node[currentNode]) currentNode = leftchild;
+                if (this.node[leftchild] !== undefined && this.node[leftchild] > this.node[currentNode]) currentNode = leftchild;
 
-                if (this.node[rightchild] && this.node[rightchild] > this.node[currentNode]) currentNode = rightchild;
+                if (this.node[rightchild] !== undefined && this.node[rightchild] > this.node[currentNode]) currentNode = rightchild;
 
                 if (currentNode !== parent) {
                     this.swap(parent, currentNode);
