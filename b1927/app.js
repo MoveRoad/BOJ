@@ -4,7 +4,7 @@ const input = fs.readFileSync(filePath).toString().trim();
 
 const [n, ...arr] = input.split('\n').map((s) => parseInt(s));
 
-class maxHeap{
+class minHeap{
     constructor(){
         this.heap = [];
     }
@@ -14,7 +14,7 @@ class maxHeap{
         let child = this.heap.length-1;
         let parent = Math.floor((child-1)/2);
         
-        while(this.heap[parent] < this.heap[child]){
+        while(this.heap[parent] > this.heap[child]){
             this.swap(parent, child);
             child = parent;
             parent = Math.floor((child-1)/2);
@@ -31,14 +31,13 @@ class maxHeap{
         let parent = 0;
         let child = parent*2 + 1; //왼쪽 자식 기준
 
-        // if 오른쪽 자식이 있고, 오른쪽 자식이 왼쪽 자식보다 더 크면 +1 해줌.
-        if(this.heap[child+1] && this.heap[child] < this.heap[child+1]) child++;
+        if(this.heap[child+1] && this.heap[child] > this.heap[child+1]) child++;
 
-        while(this.heap[child] && this.heap[parent] < this.heap[child]){
+        while(this.heap[child] && this.heap[parent] > this.heap[child]){
             this.swap(parent, child);
             parent = child;
             child = parent * 2 + 1;
-            if (this.heap[child+1] && this.heap[child] < this.heap[child+1]) child++;
+            if (this.heap[child+1] && this.heap[child] > this.heap[child+1]) child++;
         }
 
         return head;
@@ -49,7 +48,7 @@ class maxHeap{
     }
 }
 
-const mh = new maxHeap();
+const mh = new minHeap();
 
 let answer = [];
 
