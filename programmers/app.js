@@ -1,33 +1,34 @@
-solution(6,6,[[2,2,5,4],[3,3,6,6],[5,1,6,3]]);
+solution([[1,2,3,5],[5,6,7,8],[4,3,2,1]]);
 
 
-function solution(rows, columns, queries) {
-    var answer = [];
-    let cnt = 1;
-    
-    let tables = [];
-    
-    for(let i=0; i<rows; i++){
-        let temp = [];
-        for(let j=0; j<columns; j++){
-            temp.push(cnt++);
-        }
-        tables.push(temp);
-    }
-    
-    while(queries.length > 0){
-        let temp = queries.shift();
-        let idx = 0;
-        //오른쪽
-        for(let i=temp[1];i<=temp[3];i++){
-            if(i===temp[1]) idx = tables[temp[0]-1][temp[1]-1];
-            else{
-                tables[temp[0]-1][temp[i]-1] = idx;
-                idx = tables[temp[0]-1][temp[i]-1];
+
+function solution(land) {
+    const dfs = (sum, idx, count, visited, land) => {
+        //0, 0, 0, [0, 0, 0, 0], land
+        visited[idx] = 1;
+        
+        if(count === 2) return sum;
+
+        count++;
+            
+        for(let i=0; i<4; i++){
+            //console.log(`sum = ${sum+land[count][i]}, idx = ${i}, count = ${count}, visited = ${visited}, land = ${land}`);
+            if(visited[i] === 0){
+                //console.log(`i = ${i}, sum = ${sum}, idx = ${idx}, count = ${count}, visited = ${visited}, land = ${land}`);
+                dfs(sum+land[count][i], i, count, visited, land);
+                visited[idx] = 0;
+                count--;
             }
         }
-        console.log(tables);
     }
-    
+
+    let answer = [];
+    let visited = [0, 0, 0, 0];
+    let cnt = 0;
+
+    for(let i=0; i<4; i++){
+        dfs(land[0][i], i, cnt, visited, land);
+    }
+
     return answer;
 }
