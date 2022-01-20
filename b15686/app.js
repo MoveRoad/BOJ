@@ -2,52 +2,48 @@ const fs = require("fs");
 const filePath = process.platform === "linux" ? "/dev/stdin" : "./input.txt";
 let input = fs.readFileSync(filePath).toString().trim().split("\r\n");
 
-const dy = [-1, 1, 0, 0];
-const dx = [0, 0, -1, 1];
-
-const dfs = (y, x) => {
-  let queue = [[y, x]];
-  let visited = Array.from(Array(infoCity), () => new Array(infoCity).fill(0));
-  let cnt = 0;
-
-  while (queue.length > 0) {
-    let [ty, tx] = queue.shift();
-    visited[ty][tx] = 1;
-    cnt += 1;
-
-    for (let i = 0; i < 4; i++) {
-      ty = y + dy[i];
-      tx = x + dx[i];
-
-      if (ty < 0 || ty >= infoCity || tx < 0 || tx >= infoCity) continue;
-
-      if (visited[ty][tx] === 0 && input[ty][tx] === "0") {
-        queue.push([ty, tx]);
-      }
-
-      if (input[ty][tx] === "1") return cnt;
-    }
+const selectChicken = (cnt, curIdx, arr, permu) => {
+  if (cnt === leaveChicken) {
+    console.log(arr);
+    permu.push(arr);
+    return;
   }
 
-  return 0;
+  for (let i = curIdx; i < leaveChicken; i++) {
+    if (visited[i] === 1) continue;
+
+    arr.push(leaveChicken[i + 1]);
+    selectChicken(cnt + 1, curIdx, arr, permu);
+    arr.pop();
+    visited[i] === 0;
+  }
 };
 
-const [infoCity, leaveChicken] = input[0].split(" ").map(Number);
+const [N, leaveChicken] = input[0].split(" ").map(Number);
 input.shift();
+let arr = [];
+let permu = [];
+let visited = new Array(leaveChicken).fill(0);
 
-for (let i = 0; i < input.length; i++) {
-  input[i] = input[i].split(" ");
+let cityInfo = [];
+
+input.map((el) => {
+  cityInfo.push(el.split(" ").map(Number));
+});
+
+let ChickenLocation = [];
+
+cityInfo.map((el, i) => {
+  el.map((inner, j) => {
+    if (inner === 2) ChickenLocation.push([i, j]);
+  });
+});
+
+for (let i = 0; i < leaveChicken; i++) {
+  visited[i] = 1;
+  arr.push(leaveChicken[i]);
+  selectChicken(0, i, arr, permu);
+  arr.pop();
 }
 
-let answer = 0;
-
-for (let i = 0; i < infoCity; i++) {
-  for (let j = 0; j < infoCity; j++) {
-    if (input[i][j] === "1") {
-      //console.log(`i = ${i}, j = ${j}, input = ${input[i][j]}`);
-      answer += dfs(i, j);
-    }
-  }
-}
-
-console.log(answer);
+console.log(permu);
