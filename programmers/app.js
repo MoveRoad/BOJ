@@ -1,34 +1,47 @@
-solution([[1,2,3,5],[5,6,7,8],[4,3,2,1]]);
+solution([1, 2, 3, 3, 3, 4, 4, 5]);
 
 
 
-function solution(land) {
-    const dfs = (sum, idx, count, visited, land) => {
-        //0, 0, 0, [0, 0, 0, 0], land
-        visited[idx] = 1;
-        
-        if(count === 2) return sum;
-
-        count++;
-            
-        for(let i=0; i<4; i++){
-            //console.log(`sum = ${sum+land[count][i]}, idx = ${i}, count = ${count}, visited = ${visited}, land = ${land}`);
-            if(visited[i] === 0){
-                //console.log(`i = ${i}, sum = ${sum}, idx = ${idx}, count = ${count}, visited = ${visited}, land = ${land}`);
-                dfs(sum+land[count][i], i, count, visited, land);
-                visited[idx] = 0;
-                count--;
+function solution(arr) {
+    const lower_bound = (target,array) => {
+        let low = 0;
+        let high = array.length-1;
+    
+        while(low<=high){
+            let mid = Math.floor((low+high)/2);
+    
+            if(array[mid] === target){
+                while(array[mid] === target) mid--;
+    
+                return mid+1;
             }
+    
+            if(array[mid] < target) low = mid+1;
+            else high = mid-1;
         }
+    
+        return 0;
+    }
+    
+    const upper_bound = (target,array) => {
+        let low = 0;
+        let high = array.length-1;
+    
+        while(low<=high){
+            let mid = Math.floor((low+high)/2);
+    
+            if(array[mid] === target){
+                while(array[mid] === target) mid++;
+    
+                return mid-1;
+            }
+    
+            if(array[mid] < target) low = mid+1;
+            else high = mid-1;
+        }
+    
+        return 0;
     }
 
-    let answer = [];
-    let visited = [0, 0, 0, 0];
-    let cnt = 0;
-
-    for(let i=0; i<4; i++){
-        dfs(land[0][i], i, cnt, visited, land);
-    }
-
-    return answer;
+    console.log(lower_bound(3, arr) , upper_bound(3, arr));
 }
