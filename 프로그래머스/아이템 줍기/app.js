@@ -1,32 +1,48 @@
 function solution(rectangle, characterX, characterY, itemX, itemY) {
-  let answer = 0;
-  let board = Array.from(Array(11), () => new Array(11).fill(0));
+  let answer = [];
+  let board = Array.from(Array(101), () => new Array(101).fill(0));
 
   rectangle.forEach((el, i) => {
-    for (let y = el[1]; y <= el[3]; y++) {
-      board[y][el[0]] = 1;
-      board[y][el[2]] = 1;
-    }
+    const yStart = el[1] * 2;
+    const yEnd = el[3] * 2;
+    const xStart = el[0] * 2;
+    const xEnd = el[2] * 2;
 
-    for (let x = el[0]; x <= el[2]; x++) {
-      board[el[1]][x] = 1;
-      board[el[3]][x] = 1;
+    for (let y = yStart; y <= yEnd; y++) {
+      for (let x = xStart; x <= xEnd; x++) {
+        if (y === yStart || y === yEnd || x === xStart || x === xEnd) {
+          if (board[y][x] === 1) continue;
+          else board[y][x] += 1;
+        } else board[y][x] = 2;
+      }
     }
   });
-  console.log(board);
-  return answer;
-}
 
-solution(
-  [
-    [1, 1, 7, 4],
-    [3, 2, 5, 5],
-    [4, 3, 6, 9],
-    [2, 6, 8, 8],
-  ],
-  1,
-  3,
-  7,
-  8,
-  17
-);
+  const dy = [-1, 1, 0, 0];
+  const dx = [0, 0, -1, 1];
+
+  const bfs = (y, x, cnt) => {
+    let queue = [[y, x, cnt]];
+    let visited = Array.from(Array(101), () => new Array(101).fill(false));
+
+    while (queue.length) {
+      [y, x, cnt] = queue.shift();
+      visited[y][x] = true;
+
+      if (y === itemY * 2 && x === itemX * 2) return cnt / 2;
+
+      for (let i = 0; i < 4; i++) {
+        let ny = y + dy[i];
+        let nx = x + dx[i];
+
+        if (ny < 0 || ny >= 101 || nx < 0 || nx >= 101) continue;
+
+        if (!visited[ny][nx] && board[ny][nx] === 1) {
+          queue.push([ny, nx, cnt + 1]);
+        }
+      }
+    }
+  };
+
+  return bfs(characterY * 2, characterX * 2, 0);
+}
