@@ -35,7 +35,7 @@ const lower_bound = (target, array) => {
     else high = mid - 1;
   }
 
-  return 0;
+  return low;
 };
 
 function binary_search(t, arr) {
