@@ -5,7 +5,7 @@ let input = fs.readFileSync(filePath).toString().trim().split("\r\n");
 for (let i = 0; i < input.length; i += 2) {
   let N = input[i]; // 안씀
 
-  let array = input[i + 1].split(" ").map(Number);
+  let array = input[i + 1].trim().split(/\s+/g).map(Number);
   let temp = [];
 
   const lower_bound = (target, array) => {
@@ -37,6 +37,7 @@ for (let i = 0; i < input.length; i += 2) {
       let location = lower_bound(el, temp);
       temp[location] = el;
     }
+    console.log(temp);
   });
 
   console.log(temp.length);
