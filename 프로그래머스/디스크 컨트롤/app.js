@@ -1,157 +1,105 @@
 function solution(jobs) {
-  let answer = [];
-  let minHeap = new MinHeap();
-  let left = 0;
-  let right = 0;
+  let minHeap = [[null, null]];
 
-  jobs.sort((a, b) => a[0] - b[0]);
- 
-  jobs.map((_, i) => copyJobs.push([...jobs[i]]));
-  
-  console.log(jobs);
+  const swap = (a, b) => {
+    [minHeap[a], minHeap[b]] = [minHeap[b], minHeap[a]];
+  };
 
-  while (jobs.length > 0) {
-    let temp = jobs.shift();
-    let copyJobs = [temp];
-    left = temp[0];
-    right += temp[1];
-    answer.push([left, right]);
-    
-    for (let i = 0; i < jobs.length;i++){
-      if (jobs[i][0] >= temp[0] && jobs[i][0] <= temp[1]) {
-        let getJob = jobs.splice(i, 1);
-        copyJobs.push(getJob);
-        minHeap.add(getJob[1]);
-      }
+  const heappush = (data) => {
+    minHeap.push(data);
+
+    let curIdx = minHeap.length - 1;
+    let parIdx = Math.floor(curIdx / 2);
+
+    while (curIdx > 1 && minHeap[curIdx][1] < minHeap[parIdx][1]) {
+      swap(curIdx, parIdx);
+
+      curIdx = parIdx;
+      parIdx = Math.floor(curIdx / 2);
     }
+  };
 
-    while (minHeap.length > 0) {
-      let idx = minHeap.poll();
-      let comp = -1;
-      copyJobs.map((el) => {
-        if (el[1] === idx) {
-          comp = el[0];
-          break;
-        }
-        });
+  const heappop = () => {
+    const min = minHeap[1];
 
-      answer.push()
+    if (minHeap.length <= 2) minHeap = [[null, null]];
+    else minHeap[1] = minHeap.pop();
+
+    let curIdx = 1;
+    let leftIdx = curIdx * 2;
+    let rightIdx = curIdx * 2 + 1;
+
+    if (!minHeap[leftIdx]) return min;
+
+    if (!minHeap[rightIdx]) {
+      if (minHeap[leftIdx][1] < minHeap[curIdx][1]) swap(leftIdx, curIdx);
+      return min;
     }
-  }
-
-  return answer;
-}
-
-class Heap {
-  constructor() {
-    this.items = [];
-  }
-
-  //값을 서로 바꾸는 메소드
-  swap(index1, index2) {
-    let temp = this.items[index1]; // items의 index1의 값을 temp(임시공간)에 담음
-
-    this.items[index1] = this.items[index2]; // index1에 index2의 값을 저장
-
-    this.items[index2] = temp; // index2에 아까 index1의 값을 temp에 넣어놓은 값을 저장
-  }
-
-  //부모 인덱스 구하는 메소드
-  parentIndex(index) {
-    return Math.floor((index - 1) / 2);
-  }
-
-  //왼쪽 자식 인덱스 구하는 메소드
-  leftChildIndex(index) {
-    return index * 2 + 1;
-  }
-
-  //오른쪽 자식 인덱스 구하는 메소드
-  rightChildIndex(index) {
-    return index * 2 + 2;
-  }
-
-  //부모 노드 구하는 메소드
-  parent(index) {
-    return this.items[this.parentIndex(index)];
-  }
-
-  //왼쪽 자식 노드 구하는 메소드
-  leftChild(index) {
-    return this.items[this.leftChildIndex(index)];
-  }
-
-  //오른쪽 자식 노드 구하는 메소드
-  rightChild(index) {
-    return this.items[this.rightChildIndex(index)];
-  }
-
-  //최대 힙의 경우 최댓값을 반환하고 최소 힙의 경우 최솟값을 반환하는 메소드
-  peek() {
-    return this.items[0];
-  }
-
-  //힙의 크기(항목 개수)를 반환하는 메소드
-  size() {
-    return this.items.length;
-  }
-}
-
-class MinHeap extends Heap {
-  // MinHeap 클래스는 Heap 클래스를 상속받았으므로 Heap 클래스의 메소드를 모두 사용할 수 있다.
-
-  bubbleUp() {
-    let index = this.items.length - 1;
-    while (
-      this.parent(index) !== undefined &&
-      this.parent(index) > this.items[index]
-    ) {
-      this.swap(index, this.parentIndex(index));
-      index = this.parentIndex(index);
-    }
-  }
-
-  bubbleDown() {
-    let index = 0;
 
     while (
-      this.leftChild(index) !== undefined &&
-      (this.leftChild(index) < this.items[index] ||
-        this.rightChild(index) < this.items[index])
+      (minHeap[leftIdx] && minHeap[leftIdx][1] < minHeap[curIdx][1]) ||
+      (minHeap[rightIdx] && minHeap[rightIdx][1] < minHeap[curIdx][1])
     ) {
-      let smallerIndex = this.leftChildIndex(index);
+      const l = minHeap[leftIdx] ? minHeap[leftIdx][1] : 0;
+      const r = minHeap[rightIdx] ? minHeap[rightIdx][1] : 0;
+      const minIdx = l > r ? rightIdx : leftIdx;
 
-      if (
-        this.rightChild(index) !== undefined &&
-        this.rightChild(index) < this.items[smallerIndex]
-      ) {
-        smallerIndex = this.rightChildIndex(index);
+      swap(minIdx, curIdx);
+
+      curIdx = minIdx;
+      leftIdx = curIdx * 2;
+      rightIdx = curIdx * 2 + 1;
+    }
+
+    return min;
+  };
+
+  let queue = [];
+  let answer = 0;
+  let timer = 0;
+  const jobsLen = jobs.length;
+  jobs.sort((a, b) => {
+    if (a[0] === b[0]) return a[1] - b[1];
+    else return a[0] - b[0];
+  });
+
+  while (jobs.length || minHeap.length > 1) {
+    while (jobs.length && jobs[0][0] <= timer) {
+      heappush(jobs.shift());
+    }
+
+    if (minHeap.length <= 1) {
+      const newTime = jobs[0][0];
+      while (jobs.length && jobs[0][0] === newTime) {
+        minHeap.push(jobs.shift());
       }
-      this.swap(index, smallerIndex);
-      index = smallerIndex;
+
+      timer = newTime;
+    }
+
+    if (minHeap.length > 2) {
+      const done = heappop();
+
+      console.log(timer, done);
+      timer += done[1];
+      answer += timer - done[0];
     }
   }
 
-  // 힙에 원소를 추가하는 함수
-  add(item) {
-    this.items[this.items.length] = item;
-    this.bubbleUp();
-  }
-
-  // 힙에서 원소를 빼내는 함수
-  // 최소 힙이라면 최솟값이 빠져나올 것이고 최대힙이라면 최댓값이 빠져나온다.
-  poll() {
-    let item = this.items[0]; // 첫번째 원소 keep
-    this.items[0] = this.items[this.items.length - 1]; // 맨 마지막 원소를 첫번째 원소로 복사
-    this.items.pop(); // 맨 마지막 원소 삭제
-    this.bubbleDown();
-
-    return item; // keep해둔 값 반환
-  }
+  return Math.floor(answer / jobsLen);
 }
 
-solution([
-  [0, 3],
-  [1, 9],
-  [2, 6],
-]);
+console.log(
+  solution([
+    [24, 10],
+    [28, 39],
+    [43, 20],
+    [37, 5],
+    [47, 22],
+    [20, 47],
+    [15, 34],
+    [15, 2],
+    [35, 43],
+    [26, 1],
+  ])
+);
